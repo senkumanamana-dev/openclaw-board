@@ -14,6 +14,16 @@ services:
       timeout: 5s
       retries: 5
 
+  migrate:
+    build: .
+    environment:
+      DATABASE_URL: postgresql://moltbot:moltbot@db:5432/moltbot?schema=public
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["./node_modules/.bin/prisma", "migrate", "deploy"]
+    user: root
+
   app:
     build: .
     restart: unless-stopped
@@ -22,10 +32,8 @@ services:
     environment:
       DATABASE_URL: postgresql://moltbot:moltbot@db:5432/moltbot?schema=public
     depends_on:
-      db:
-        condition: service_healthy
-    command: >
-      sh -c "npx prisma migrate deploy && node server.js"
+      migrate:
+        condition: service_completed_successfully
 
 volumes:
   postgres_data:

@@ -7,6 +7,9 @@ export interface Task {
   tags: string[]
   position: number
   isActive: boolean
+  storyPoints: number | null
+  startedAt: string | null
+  completedAt: string | null
   createdAt: string
   updatedAt: string
 }
@@ -18,4 +21,14 @@ export interface Column {
   id: TaskStatus
   title: string
   tasks: Task[]
+}
+
+export interface BoardMetrics {
+  totalTasks: number
+  completedTasks: number
+  totalPoints: number
+  completedPoints: number
+  avgCycleTimeHours: number | null
+  velocityLast7Days: number
+  velocityLast30Days: number
 }

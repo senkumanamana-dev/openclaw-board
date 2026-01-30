@@ -2,11 +2,13 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { DragDropContext, DropResult } from '@hello-pangea/dnd'
-import { Task, TaskStatus, Column } from '@/types/task'
+import { Task, TaskStatus } from '@/types/task'
 import { KanbanColumn } from './kanban-column'
 import { TaskDialog } from './task-dialog'
 import { Button } from '@/components/ui/button'
-import { Bot, Plus, Wifi, WifiOff } from 'lucide-react'
+import { Bot, Plus, WifiOff } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { MetricsPanel } from './metrics-panel'
 
 const COLUMNS: { id: TaskStatus; title: string }[] = [
   { id: 'TODO', title: 'To Do' },
@@ -20,6 +22,7 @@ export function KanbanBoard() {
   const [editingTask, setEditingTask] = useState<Task | null>(null)
   const [isConnected, setIsConnected] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [metricsRefresh, setMetricsRefresh] = useState(0)
 
   const fetchTasks = useCallback(async () => {
     try {
@@ -57,15 +60,19 @@ export function KanbanBoard() {
       switch (eventType) {
         case 'task:created':
           setTasks(prev => [...prev, data])
+          setMetricsRefresh(n => n + 1)
           break
         case 'task:updated':
           setTasks(prev => prev.map(t => t.id === data.id ? data : t))
+          setMetricsRefresh(n => n + 1)
           break
         case 'task:deleted':
           setTasks(prev => prev.filter(t => t.id !== data.id))
+          setMetricsRefresh(n => n + 1)
           break
         case 'tasks:reordered':
           setTasks(data)
+          setMetricsRefresh(n => n + 1)
           break
       }
     }
@@ -162,6 +169,7 @@ export function KanbanBoard() {
   }
 
   const activeTask = tasks.find(t => t.isActive)
+  const isWorking = !!activeTask
 
   if (isLoading) {
     return (
@@ -176,27 +184,46 @@ export function KanbanBoard() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className="bg-primary/10 p-2 rounded-lg">
-            <Bot className="h-8 w-8 text-primary" />
+          {/* Agent Icon */}
+          <div className={cn(
+            "relative p-2.5 rounded-xl transition-all",
+            isWorking 
+              ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30" 
+              : "bg-primary/10 text-primary"
+          )}>
+            {isWorking && (
+              <div className="absolute inset-0 rounded-xl bg-primary animate-ping opacity-30" />
+            )}
+            <Bot className={cn("h-7 w-7 relative", isWorking && "animate-pulse")} />
           </div>
           <div>
             <h1 className="text-2xl font-bold">Moltbot Board</h1>
             <p className="text-sm text-muted-foreground">
-              AI Assistant Task Tracker
+              {isWorking ? (
+                <span className="text-primary font-medium">Working on a task...</span>
+              ) : (
+                'AI Assistant Task Tracker'
+              )}
             </p>
           </div>
         </div>
         
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 text-sm">
+          <div className={cn(
+            "flex items-center gap-2 text-sm px-3 py-1.5 rounded-full",
+            isConnected ? "bg-primary/10" : "bg-muted"
+          )}>
             {isConnected ? (
               <>
-                <Wifi className="h-4 w-4 text-emerald-500" />
-                <span className="text-emerald-500">Live</span>
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
+                </span>
+                <span className="text-primary font-medium">Live</span>
               </>
             ) : (
               <>
-                <WifiOff className="h-4 w-4 text-muted-foreground" />
+                <WifiOff className="h-3.5 w-3.5 text-muted-foreground" />
                 <span className="text-muted-foreground">Offline</span>
               </>
             )}
@@ -208,17 +235,20 @@ export function KanbanBoard() {
         </div>
       </div>
 
+      {/* Metrics Panel */}
+      <MetricsPanel refreshTrigger={metricsRefresh} />
+
       {/* Active Task Banner */}
       {activeTask && (
-        <div className="mb-6 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-lg flex items-center gap-3">
+        <div className="mb-6 p-4 bg-primary/10 border border-primary/20 rounded-lg flex items-center gap-3">
           <div className="relative">
-            <div className="absolute inset-0 bg-emerald-500 rounded-full animate-ping opacity-75" />
-            <div className="relative bg-emerald-500 text-white rounded-full p-2">
+            <div className="absolute inset-0 bg-primary rounded-full animate-ping opacity-50" />
+            <div className="relative bg-primary text-primary-foreground rounded-full p-2">
               <Bot className="h-5 w-5" />
             </div>
           </div>
           <div>
-            <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300">
+            <p className="text-sm font-medium text-primary">
               Currently Working On
             </p>
             <p className="font-semibold">{activeTask.title}</p>

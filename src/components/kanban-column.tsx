@@ -15,7 +15,7 @@ interface KanbanColumnProps {
 
 const columnStyles = {
   TODO: 'border-t-slate-500',
-  IN_PROGRESS: 'border-t-blue-500',
+  IN_PROGRESS: 'border-t-primary',
   DONE: 'border-t-emerald-500',
 }
 

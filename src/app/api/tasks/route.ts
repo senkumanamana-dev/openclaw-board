@@ -1,6 +1,13 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
+// Helper to safely broadcast
+function broadcast(event: string, data: unknown) {
+  if (typeof global.wsBroadcast === 'function') {
+    global.wsBroadcast(event, data)
+  }
+}
+
 export async function GET() {
   try {
     const tasks = await prisma.task.findMany({
@@ -34,6 +41,7 @@ export async function POST(request: Request) {
       },
     })
 
+    broadcast('task:created', task)
     return NextResponse.json(task, { status: 201 })
   } catch (error) {
     console.error('Error creating task:', error)

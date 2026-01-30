@@ -20,14 +20,17 @@ enum Priority {
 }
 
 model Task {
-  id          String     @id @default(cuid())
-  title       String
-  description String?
-  status      TaskStatus @default(TODO)
-  priority    Priority   @default(MEDIUM)
-  tags        String[]
-  position    Int        @default(0)
-  isActive    Boolean    @default(false)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  id            String     @id @default(cuid())
+  title         String
+  description   String?
+  status        TaskStatus @default(TODO)
+  priority      Priority   @default(MEDIUM)
+  tags          String[]
+  position      Int        @default(0)
+  isActive      Boolean    @default(false)
+  storyPoints   Int?
+  startedAt     DateTime?  // When moved to IN_PROGRESS
+  completedAt   DateTime?  // When moved to DONE
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
 }

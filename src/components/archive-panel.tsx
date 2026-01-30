@@ -172,7 +172,10 @@ export function ArchivePanel({ open, onOpenChange }: ArchivePanelProps) {
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-medium text-sm truncate">{task.title}</h4>
+                    <h4 className="font-medium text-sm truncate">
+                      <span className="font-mono text-muted-foreground mr-1">OCB-{task.taskNumber}</span>
+                      {task.title}
+                    </h4>
                     {task.description && (
                       <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
                         {task.description}

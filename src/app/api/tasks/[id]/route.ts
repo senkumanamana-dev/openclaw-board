@@ -22,8 +22,8 @@ export async function GET(
         subtasks: { orderBy: { position: 'asc' } },
         attachments: { orderBy: { createdAt: 'desc' } },
         activities: { orderBy: { createdAt: 'desc' }, take: 50 },
-        blockedBy: { select: { id: true, title: true, status: true } },
-        blocking: { select: { id: true, title: true, status: true } },
+        blockedBy: { select: { id: true, taskNumber: true, title: true, status: true } },
+        blocking: { select: { id: true, taskNumber: true, title: true, status: true } },
       },
     })
     
@@ -102,8 +102,8 @@ export async function PATCH(
         subtasks: { orderBy: { position: 'asc' } },
         attachments: { orderBy: { createdAt: 'desc' } },
         activities: { orderBy: { createdAt: 'desc' }, take: 20 },
-        blockedBy: { select: { id: true, title: true, status: true } },
-        blocking: { select: { id: true, title: true, status: true } },
+        blockedBy: { select: { id: true, taskNumber: true, title: true, status: true } },
+        blocking: { select: { id: true, taskNumber: true, title: true, status: true } },
       },
     })
     

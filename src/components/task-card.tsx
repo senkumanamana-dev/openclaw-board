@@ -78,9 +78,14 @@ export function TaskCard({ task, index, onEdit, onDelete, onApprove, onReject }:
             
             <CardHeader className="pb-2 pt-3 px-3">
               <div className="flex items-start justify-between gap-2">
-                <h3 className="font-semibold text-sm flex-1 leading-tight">
-                  {task.title}
-                </h3>
+                <div className="flex-1">
+                  <span className="text-xs font-mono text-muted-foreground mr-2">
+                    OCB-{task.taskNumber}
+                  </span>
+                  <h3 className="font-semibold text-sm leading-tight inline">
+                    {task.title}
+                  </h3>
+                </div>
                 <div className="flex gap-1">
                   <Button
                     variant="ghost"
@@ -136,9 +141,14 @@ export function TaskCard({ task, index, onEdit, onDelete, onApprove, onReject }:
               
               {/* Dependencies indicator */}
               {(task.blockedBy?.length || 0) > 0 && (
-                <div className="flex items-center gap-1 text-xs text-amber-600 mb-2">
-                  <Link className="h-3 w-3" />
-                  <span>Depends on {task.blockedBy?.length} task{task.blockedBy?.length === 1 ? '' : 's'}</span>
+                <div className="flex items-center gap-1 text-xs text-amber-600 mb-2 flex-wrap">
+                  <Link className="h-3 w-3 shrink-0" />
+                  <span>Blocked by:</span>
+                  {task.blockedBy?.map((dep, i) => (
+                    <span key={dep.id} className="font-mono">
+                      OCB-{dep.taskNumber}{i < (task.blockedBy?.length || 0) - 1 ? ',' : ''}
+                    </span>
+                  ))}
                 </div>
               )}
               

@@ -234,7 +234,14 @@ export function TaskDialog({ open, onOpenChange, task, onSave, allTasks = [] }: 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px] max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{task ? 'Edit Task' : 'New Task'}</DialogTitle>
+          <DialogTitle>
+            {task ? (
+              <>
+                <span className="font-mono text-muted-foreground mr-2">OCB-{task.taskNumber}</span>
+                Edit Task
+              </>
+            ) : 'New Task'}
+          </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -342,6 +349,7 @@ export function TaskDialog({ open, onOpenChange, task, onSave, allTasks = [] }: 
                           t.status === 'DONE' ? 'text-muted-foreground line-through' : ''
                         }`}
                       >
+                        <span className="font-mono text-xs text-muted-foreground mr-1">OCB-{t.taskNumber}</span>
                         {t.title}
                         {t.status === 'DONE' && ' ✓'}
                       </label>

@@ -37,6 +37,7 @@ export interface Attachment {
 
 export interface Task {
   id: string
+  taskNumber: number
   title: string
   description: string | null
   status: 'TODO' | 'IN_PROGRESS' | 'NEEDS_REVIEW' | 'DONE'

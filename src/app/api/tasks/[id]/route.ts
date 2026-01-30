@@ -55,6 +55,10 @@ export async function PATCH(
     // Auto-set timestamps based on status transitions
     const updateData: Record<string, unknown> = { ...body, updatedAt: new Date() }
     
+    // Extract actor before passing to Prisma (it's not a Task field)
+    const actor = (updateData.actor || 'human') as 'agent' | 'human'
+    delete updateData.actor
+    
     // Handle blockedBy separately (it's a relation)
     const blockedByIds = updateData.blockedBy
     delete updateData.blockedBy
@@ -108,7 +112,6 @@ export async function PATCH(
     })
     
     // Log activity for significant changes
-    const actor = body.actor || 'human'
     if (body.status && body.status !== currentTask.status) {
       await logActivity(id, 'status_change', actor, 'status', currentTask.status, body.status)
     }

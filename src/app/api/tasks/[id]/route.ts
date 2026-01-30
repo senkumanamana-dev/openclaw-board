@@ -19,6 +19,8 @@ export async function GET(
       include: { 
         comments: { orderBy: { createdAt: 'asc' } },
         subtasks: { orderBy: { position: 'asc' } },
+        blockedBy: { select: { id: true, title: true, status: true } },
+        blocking: { select: { id: true, title: true, status: true } },
       },
     })
     
@@ -50,6 +52,11 @@ export async function PATCH(
     // Auto-set timestamps based on status transitions
     const updateData: Record<string, unknown> = { ...body, updatedAt: new Date() }
     
+    // Handle blockedBy separately (it's a relation)
+    const blockedByIds = updateData.blockedBy
+    delete updateData.blockedBy
+    delete updateData.blocking // Don't allow direct update of reverse relation
+    
     if (body.status && body.status !== currentTask.status) {
       // Moving to IN_PROGRESS: set startedAt if not already set
       if (body.status === 'IN_PROGRESS' && !currentTask.startedAt) {
@@ -74,12 +81,24 @@ export async function PATCH(
       }
     }
     
+    // Build the update with blockedBy relation if provided
+    const prismaData: Record<string, unknown> = { ...updateData }
+    if (blockedByIds !== undefined) {
+      prismaData.blockedBy = {
+        set: Array.isArray(blockedByIds) 
+          ? blockedByIds.map((tid: string) => ({ id: tid }))
+          : []
+      }
+    }
+    
     const task = await prisma.task.update({
       where: { id },
-      data: updateData,
+      data: prismaData,
       include: { 
         comments: { orderBy: { createdAt: 'asc' } },
         subtasks: { orderBy: { position: 'asc' } },
+        blockedBy: { select: { id: true, title: true, status: true } },
+        blocking: { select: { id: true, title: true, status: true } },
       },
     })
     

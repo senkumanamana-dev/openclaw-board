@@ -423,6 +423,7 @@ export function KanbanBoard() {
         onOpenChange={setIsDialogOpen}
         task={editingTask}
         onSave={handleSaveTask}
+        allTasks={tasks}
       />
 
       {/* Archive Panel */}

@@ -19,6 +19,8 @@ export async function GET(request: NextRequest) {
       include: { 
         comments: { orderBy: { createdAt: 'asc' } },
         subtasks: { orderBy: { position: 'asc' } },
+        blockedBy: { select: { id: true, title: true, status: true } },
+        blocking: { select: { id: true, title: true, status: true } },
       },
     })
     return NextResponse.json(tasks)

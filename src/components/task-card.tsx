@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Task } from '@/types/task'
 import { Draggable } from '@hello-pangea/dnd'
-import { Bot, Check, Clock, ListChecks, MessageSquare, Pencil, RotateCcw, Trash2 } from 'lucide-react'
+import { AlertCircle, Bot, Check, Clock, Link, ListChecks, MessageSquare, Pencil, RotateCcw, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -31,6 +31,10 @@ export function TaskCard({ task, index, onEdit, onDelete, onApprove, onReject }:
     })
   }
 
+  // Check if blocked by incomplete dependencies
+  const incompleteDeps = task.blockedBy?.filter(dep => dep.status !== 'DONE') || []
+  const isBlocked = incompleteDeps.length > 0
+
   return (
     <Draggable draggableId={task.id} index={index}>
       {(provided, snapshot) => (
@@ -44,9 +48,19 @@ export function TaskCard({ task, index, onEdit, onDelete, onApprove, onReject }:
             className={cn(
               'relative transition-all duration-200 hover:shadow-lg',
               snapshot.isDragging && 'rotate-2 shadow-xl',
-              task.isActive && 'ring-2 ring-primary animate-pulse-subtle'
+              task.isActive && 'ring-2 ring-primary animate-pulse-subtle',
+              isBlocked && 'opacity-60 border-dashed border-amber-500'
             )}
           >
+            {/* Blocked indicator */}
+            {isBlocked && (
+              <div className="absolute -top-2 -left-2 z-10">
+                <div className="bg-amber-500 text-white rounded-full p-1.5" title={`Blocked by: ${incompleteDeps.map(d => d.title).join(', ')}`}>
+                  <AlertCircle className="h-4 w-4" />
+                </div>
+              </div>
+            )}
+            
             {/* Working indicator */}
             {task.isActive && (
               <div className="absolute -top-2 -right-2 z-10">
@@ -116,6 +130,14 @@ export function TaskCard({ task, index, onEdit, onDelete, onApprove, onReject }:
                   </Badge>
                 ))}
               </div>
+              
+              {/* Dependencies indicator */}
+              {(task.blockedBy?.length || 0) > 0 && (
+                <div className="flex items-center gap-1 text-xs text-amber-600 mb-2">
+                  <Link className="h-3 w-3" />
+                  <span>Depends on {task.blockedBy?.length} task{task.blockedBy?.length === 1 ? '' : 's'}</span>
+                </div>
+              )}
               
               <div className="flex items-center justify-between text-xs text-muted-foreground">
                 <div className="flex items-center gap-3">

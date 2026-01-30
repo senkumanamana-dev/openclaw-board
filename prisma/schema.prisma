@@ -39,6 +39,10 @@ model Task {
   updatedAt     DateTime   @updatedAt
   comments      Comment[]
   subtasks      Subtask[]
+  // Dependencies: tasks this task is blocked by
+  blockedBy     Task[]     @relation("TaskDependencies")
+  // Reverse: tasks that depend on this task
+  blocking      Task[]     @relation("TaskDependencies")
 }
 
 model Comment {

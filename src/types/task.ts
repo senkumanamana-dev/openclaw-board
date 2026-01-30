@@ -33,6 +33,8 @@ export interface Task {
   updatedAt: string
   comments?: Comment[]
   subtasks?: Subtask[]
+  blockedBy?: Task[]
+  blocking?: Task[]
 }
 
 export type TaskStatus = Task['status']

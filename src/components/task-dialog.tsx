@@ -19,16 +19,17 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Task, Priority, Comment, Subtask } from '@/types/task'
-import { MessageSquare, Send, ListChecks, Plus, X } from 'lucide-react'
+import { Link, MessageSquare, Send, ListChecks, Plus, X } from 'lucide-react'
 
 interface TaskDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   task?: Task | null
   onSave: (task: Partial<Task>) => void
+  allTasks?: Task[]
 }
 
-export function TaskDialog({ open, onOpenChange, task, onSave }: TaskDialogProps) {
+export function TaskDialog({ open, onOpenChange, task, onSave, allTasks = [] }: TaskDialogProps) {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [priority, setPriority] = useState<Priority>('MEDIUM')
@@ -40,6 +41,7 @@ export function TaskDialog({ open, onOpenChange, task, onSave }: TaskDialogProps
   const [newSubtask, setNewSubtask] = useState('')
   const [subtasks, setSubtasks] = useState<Subtask[]>([])
   const [isSubmittingSubtask, setIsSubmittingSubtask] = useState(false)
+  const [blockedBy, setBlockedBy] = useState<string[]>([])
 
   useEffect(() => {
     if (task) {
@@ -50,6 +52,7 @@ export function TaskDialog({ open, onOpenChange, task, onSave }: TaskDialogProps
       setStoryPoints(task.storyPoints?.toString() || '')
       setComments(task.comments || [])
       setSubtasks(task.subtasks || [])
+      setBlockedBy(task.blockedBy?.map(t => t.id) || [])
     } else {
       setTitle('')
       setDescription('')
@@ -58,6 +61,7 @@ export function TaskDialog({ open, onOpenChange, task, onSave }: TaskDialogProps
       setStoryPoints('')
       setComments([])
       setSubtasks([])
+      setBlockedBy([])
     }
     setNewComment('')
     setNewSubtask('')
@@ -72,6 +76,7 @@ export function TaskDialog({ open, onOpenChange, task, onSave }: TaskDialogProps
       priority,
       tags: tags.split(',').map(t => t.trim()).filter(Boolean),
       storyPoints: storyPoints ? parseInt(storyPoints, 10) : null,
+      blockedBy: blockedBy as unknown as Task[], // Will be converted to IDs in API
     })
     onOpenChange(false)
   }
@@ -239,6 +244,48 @@ export function TaskDialog({ open, onOpenChange, task, onSave }: TaskDialogProps
               placeholder="Comma-separated tags"
             />
           </div>
+
+          {/* Dependencies Section */}
+          {task && (
+            <div className="border-t pt-4 mt-4">
+              <label className="text-sm font-medium flex items-center gap-2 mb-3">
+                <Link className="h-4 w-4" />
+                Dependencies ({blockedBy.length})
+              </label>
+              
+              <div className="space-y-2">
+                {allTasks
+                  .filter(t => t.id !== task.id && !t.archived)
+                  .map((t) => (
+                    <div key={t.id} className="flex items-center gap-2">
+                      <Checkbox
+                        id={`dep-${t.id}`}
+                        checked={blockedBy.includes(t.id)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setBlockedBy(prev => [...prev, t.id])
+                          } else {
+                            setBlockedBy(prev => prev.filter(id => id !== t.id))
+                          }
+                        }}
+                      />
+                      <label
+                        htmlFor={`dep-${t.id}`}
+                        className={`flex-1 text-sm cursor-pointer ${
+                          t.status === 'DONE' ? 'text-muted-foreground line-through' : ''
+                        }`}
+                      >
+                        {t.title}
+                        {t.status === 'DONE' && ' ✓'}
+                      </label>
+                    </div>
+                  ))}
+                {allTasks.filter(t => t.id !== task.id && !t.archived).length === 0 && (
+                  <p className="text-sm text-muted-foreground">No other tasks to depend on</p>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Subtasks Section - only show for existing tasks */}
           {task && (

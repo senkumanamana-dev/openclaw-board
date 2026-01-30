@@ -29,6 +29,8 @@ model Task {
   position      Int        @default(0)
   isActive      Boolean    @default(false)
   storyPoints   Int?
+  archived      Boolean    @default(false)
+  archivedAt    DateTime?
   startedAt     DateTime?  // When moved to IN_PROGRESS
   completedAt   DateTime?  // When moved to DONE
   createdAt     DateTime   @default(now())

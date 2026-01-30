@@ -5,6 +5,7 @@ import { DragDropContext, DropResult } from '@hello-pangea/dnd'
 import { Task, TaskStatus, Priority } from '@/types/task'
 import { KanbanColumn } from './kanban-column'
 import { TaskDialog } from './task-dialog'
+import { ArchivePanel } from './archive-panel'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -14,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Bot, Plus, WifiOff, Search, X } from 'lucide-react'
+import { Archive, Bot, Plus, WifiOff, Search, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { MetricsPanel } from './metrics-panel'
 
@@ -31,6 +32,7 @@ export function KanbanBoard() {
   const [isConnected, setIsConnected] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [metricsRefresh, setMetricsRefresh] = useState(0)
+  const [isArchiveOpen, setIsArchiveOpen] = useState(false)
   
   // Filter state
   const [searchQuery, setSearchQuery] = useState('')
@@ -72,11 +74,18 @@ export function KanbanBoard() {
       
       switch (eventType) {
         case 'task:created':
-          setTasks(prev => [...prev, data])
+          if (!data.archived) {
+            setTasks(prev => [...prev, data])
+          }
           setMetricsRefresh(n => n + 1)
           break
         case 'task:updated':
-          setTasks(prev => prev.map(t => t.id === data.id ? data : t))
+          if (data.archived) {
+            // Remove from board if archived
+            setTasks(prev => prev.filter(t => t.id !== data.id))
+          } else {
+            setTasks(prev => prev.map(t => t.id === data.id ? data : t))
+          }
           setMetricsRefresh(n => n + 1)
           break
         case 'task:deleted':
@@ -84,7 +93,7 @@ export function KanbanBoard() {
           setMetricsRefresh(n => n + 1)
           break
         case 'tasks:reordered':
-          setTasks(data)
+          setTasks(data.filter((t: Task) => !t.archived))
           setMetricsRefresh(n => n + 1)
           break
       }
@@ -285,6 +294,10 @@ export function KanbanBoard() {
             <Plus className="h-4 w-4 mr-2" />
             New Task
           </Button>
+          <Button variant="outline" onClick={() => setIsArchiveOpen(true)}>
+            <Archive className="h-4 w-4 mr-2" />
+            Archive
+          </Button>
         </div>
       </div>
 
@@ -383,6 +396,12 @@ export function KanbanBoard() {
         onOpenChange={setIsDialogOpen}
         task={editingTask}
         onSave={handleSaveTask}
+      />
+
+      {/* Archive Panel */}
+      <ArchivePanel
+        open={isArchiveOpen}
+        onOpenChange={setIsArchiveOpen}
       />
     </div>
   )

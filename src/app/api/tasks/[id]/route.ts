@@ -75,6 +75,31 @@ export async function PATCH(
     })
     
     broadcast('task:updated', task)
+    
+    // Auto-archive: if moving to DONE and there are 5+ completed non-archived tasks
+    if (body.status === 'DONE') {
+      const completedTasks = await prisma.task.findMany({
+        where: { status: 'DONE', archived: false },
+        orderBy: { completedAt: 'asc' },
+      })
+      
+      if (completedTasks.length > 5) {
+        // Archive oldest completed tasks, keeping only 5 in Done column
+        const toArchive = completedTasks.slice(0, completedTasks.length - 5)
+        for (const t of toArchive) {
+          const archived = await prisma.task.update({
+            where: { id: t.id },
+            data: { archived: true, archivedAt: new Date() },
+            include: { 
+              comments: { orderBy: { createdAt: 'asc' } },
+              subtasks: { orderBy: { position: 'asc' } },
+            },
+          })
+          broadcast('task:updated', archived)
+        }
+      }
+    }
+    
     return NextResponse.json(task)
   } catch (error) {
     console.error('Error updating task:', error)

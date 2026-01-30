@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
 // Helper to safely broadcast
@@ -8,9 +8,13 @@ function broadcast(event: string, data: unknown) {
   }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url)
+    const includeArchived = searchParams.get('includeArchived') === 'true'
+    
     const tasks = await prisma.task.findMany({
+      where: includeArchived ? {} : { archived: false },
       orderBy: [{ status: 'asc' }, { position: 'asc' }],
       include: { 
         comments: { orderBy: { createdAt: 'asc' } },

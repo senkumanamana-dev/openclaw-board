@@ -24,6 +24,8 @@ export interface Task {
   position: number
   isActive: boolean
   storyPoints: number | null
+  archived: boolean
+  archivedAt: string | null
   startedAt: string | null
   completedAt: string | null
   createdAt: string

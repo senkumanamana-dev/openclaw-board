@@ -14,6 +14,16 @@ export interface Subtask {
   createdAt: string
 }
 
+export interface Attachment {
+  id: string
+  type: 'link' | 'code' | 'note' | 'file'
+  title: string | null
+  content: string
+  mimeType: string | null
+  taskId: string
+  createdAt: string
+}
+
 export interface Task {
   id: string
   title: string
@@ -34,6 +44,7 @@ export interface Task {
   updatedAt: string
   comments?: Comment[]
   subtasks?: Subtask[]
+  attachments?: Attachment[]
   blockedBy?: Task[]
   blocking?: Task[]
 }

@@ -19,6 +19,7 @@ export async function GET(
       include: { 
         comments: { orderBy: { createdAt: 'asc' } },
         subtasks: { orderBy: { position: 'asc' } },
+        attachments: { orderBy: { createdAt: 'desc' } },
         blockedBy: { select: { id: true, title: true, status: true } },
         blocking: { select: { id: true, title: true, status: true } },
       },
@@ -97,6 +98,7 @@ export async function PATCH(
       include: { 
         comments: { orderBy: { createdAt: 'asc' } },
         subtasks: { orderBy: { position: 'asc' } },
+        attachments: { orderBy: { createdAt: 'desc' } },
         blockedBy: { select: { id: true, title: true, status: true } },
         blocking: { select: { id: true, title: true, status: true } },
       },
@@ -121,6 +123,7 @@ export async function PATCH(
             include: { 
               comments: { orderBy: { createdAt: 'asc' } },
               subtasks: { orderBy: { position: 'asc' } },
+        attachments: { orderBy: { createdAt: 'desc' } },
             },
           })
           broadcast('task:updated', archived)

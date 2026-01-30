@@ -168,6 +168,11 @@ export function TaskCard({ task, index, onEdit, onDelete, onApprove, onReject }:
                       {task.subtasks.filter(s => s.completed).length}/{task.subtasks.length}
                     </div>
                   )}
+                  {task.attachments && task.attachments.length > 0 && (
+                    <div className="flex items-center" title="Attachments">
+                      📎 {task.attachments.length}
+                    </div>
+                  )}
                 </div>
                 {task.isActive && (
                   <span className="text-primary font-medium flex items-center gap-1">

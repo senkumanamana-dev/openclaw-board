@@ -40,6 +40,7 @@ model Task {
   updatedAt     DateTime   @updatedAt
   comments      Comment[]
   subtasks      Subtask[]
+  attachments   Attachment[]
   // Dependencies: tasks this task is blocked by
   blockedBy     Task[]     @relation("TaskDependencies")
   // Reverse: tasks that depend on this task
@@ -59,6 +60,17 @@ model Subtask {
   title     String
   completed Boolean  @default(false)
   position  Int      @default(0)
+  taskId    String
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model Attachment {
+  id        String   @id @default(cuid())
+  type      String   // 'link', 'code', 'note', 'file'
+  title     String?
+  content   String   // URL for links, actual content for code/notes
+  mimeType  String?  // For code highlighting or file types
   taskId    String
   task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())

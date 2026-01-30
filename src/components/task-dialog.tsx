@@ -18,8 +18,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Task, Priority, Comment, Subtask } from '@/types/task'
-import { Link, MessageSquare, Send, ListChecks, Plus, X } from 'lucide-react'
+import { Task, Priority, Comment, Subtask, Attachment } from '@/types/task'
+import { Code, ExternalLink, FileText, Link, MessageSquare, Paperclip, Send, ListChecks, Plus, X } from 'lucide-react'
 
 interface TaskDialogProps {
   open: boolean
@@ -43,6 +43,9 @@ export function TaskDialog({ open, onOpenChange, task, onSave, allTasks = [] }: 
   const [isSubmittingSubtask, setIsSubmittingSubtask] = useState(false)
   const [blockedBy, setBlockedBy] = useState<string[]>([])
   const [blockedReason, setBlockedReason] = useState('')
+  const [attachments, setAttachments] = useState<Attachment[]>([])
+  const [newAttachment, setNewAttachment] = useState({ type: 'link' as Attachment['type'], title: '', content: '' })
+  const [isSubmittingAttachment, setIsSubmittingAttachment] = useState(false)
 
   useEffect(() => {
     if (task) {
@@ -55,6 +58,7 @@ export function TaskDialog({ open, onOpenChange, task, onSave, allTasks = [] }: 
       setSubtasks(task.subtasks || [])
       setBlockedBy(task.blockedBy?.map(t => t.id) || [])
       setBlockedReason(task.blockedReason || '')
+      setAttachments(task.attachments || [])
     } else {
       setTitle('')
       setDescription('')
@@ -65,6 +69,7 @@ export function TaskDialog({ open, onOpenChange, task, onSave, allTasks = [] }: 
       setSubtasks([])
       setBlockedBy([])
       setBlockedReason('')
+      setAttachments([])
     }
     setNewComment('')
     setNewSubtask('')
@@ -164,6 +169,49 @@ export function TaskDialog({ open, onOpenChange, task, onSave, allTasks = [] }: 
       }
     } catch (error) {
       console.error('Failed to delete subtask:', error)
+    }
+  }
+
+  const handleAddAttachment = async () => {
+    if (!task || !newAttachment.content.trim()) return
+    
+    setIsSubmittingAttachment(true)
+    try {
+      const res = await fetch(`/api/tasks/${task.id}/attachments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: newAttachment.type,
+          title: newAttachment.title.trim() || null,
+          content: newAttachment.content.trim(),
+        }),
+      })
+      
+      if (res.ok) {
+        const attachment = await res.json()
+        setAttachments(prev => [attachment, ...prev])
+        setNewAttachment({ type: 'link', title: '', content: '' })
+      }
+    } catch (error) {
+      console.error('Failed to add attachment:', error)
+    } finally {
+      setIsSubmittingAttachment(false)
+    }
+  }
+
+  const handleDeleteAttachment = async (attachmentId: string) => {
+    if (!task) return
+    
+    try {
+      const res = await fetch(`/api/tasks/${task.id}/attachments?attachmentId=${attachmentId}`, {
+        method: 'DELETE',
+      })
+      
+      if (res.ok) {
+        setAttachments(prev => prev.filter(a => a.id !== attachmentId))
+      }
+    } catch (error) {
+      console.error('Failed to delete attachment:', error)
     }
   }
 
@@ -366,6 +414,110 @@ export function TaskDialog({ open, onOpenChange, task, onSave, allTasks = [] }: 
                 >
                   <Plus className="h-4 w-4" />
                 </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Attachments Section - only show for existing tasks */}
+          {task && (
+            <div className="border-t pt-4 mt-4">
+              <label className="text-sm font-medium flex items-center gap-2 mb-3">
+                <Paperclip className="h-4 w-4" />
+                Attachments ({attachments.length})
+              </label>
+              
+              {attachments.length > 0 && (
+                <div className="space-y-2 mb-4 max-h-40 overflow-y-auto">
+                  {attachments.map((attachment) => (
+                    <div key={attachment.id} className="flex items-start gap-2 bg-muted/50 rounded-lg p-2 group">
+                      <div className="mt-0.5">
+                        {attachment.type === 'link' && <ExternalLink className="h-4 w-4 text-blue-500" />}
+                        {attachment.type === 'code' && <Code className="h-4 w-4 text-green-500" />}
+                        {attachment.type === 'note' && <FileText className="h-4 w-4 text-amber-500" />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        {attachment.title && (
+                          <p className="text-sm font-medium truncate">{attachment.title}</p>
+                        )}
+                        {attachment.type === 'link' ? (
+                          <a 
+                            href={attachment.content} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-xs text-blue-500 hover:underline truncate block"
+                          >
+                            {attachment.content}
+                          </a>
+                        ) : (
+                          <p className="text-xs text-muted-foreground line-clamp-2 whitespace-pre-wrap">
+                            {attachment.content}
+                          </p>
+                        )}
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => handleDeleteAttachment(attachment.id)}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              {/* Add new attachment */}
+              <div className="space-y-2">
+                <div className="flex gap-2">
+                  <Select 
+                    value={newAttachment.type} 
+                    onValueChange={(v) => setNewAttachment(prev => ({ ...prev, type: v as Attachment['type'] }))}
+                  >
+                    <SelectTrigger className="w-24">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="link">Link</SelectItem>
+                      <SelectItem value="code">Code</SelectItem>
+                      <SelectItem value="note">Note</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Input
+                    value={newAttachment.title}
+                    onChange={(e) => setNewAttachment(prev => ({ ...prev, title: e.target.value }))}
+                    placeholder="Title (optional)"
+                    className="flex-1"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  {newAttachment.type === 'link' ? (
+                    <Input
+                      value={newAttachment.content}
+                      onChange={(e) => setNewAttachment(prev => ({ ...prev, content: e.target.value }))}
+                      placeholder="https://..."
+                      className="flex-1"
+                    />
+                  ) : (
+                    <Textarea
+                      value={newAttachment.content}
+                      onChange={(e) => setNewAttachment(prev => ({ ...prev, content: e.target.value }))}
+                      placeholder={newAttachment.type === 'code' ? 'Paste code...' : 'Add a note...'}
+                      rows={2}
+                      className="flex-1"
+                    />
+                  )}
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="secondary"
+                    onClick={handleAddAttachment}
+                    disabled={!newAttachment.content.trim() || isSubmittingAttachment}
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </div>
           )}

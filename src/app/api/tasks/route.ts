@@ -19,6 +19,7 @@ export async function GET(request: NextRequest) {
       include: { 
         comments: { orderBy: { createdAt: 'asc' } },
         subtasks: { orderBy: { position: 'asc' } },
+        attachments: { orderBy: { createdAt: 'desc' } },
         blockedBy: { select: { id: true, title: true, status: true } },
         blocking: { select: { id: true, title: true, status: true } },
       },

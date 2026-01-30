@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Task } from '@/types/task'
 import { Draggable } from '@hello-pangea/dnd'
-import { Bot, Clock, Pencil, Trash2 } from 'lucide-react'
+import { Bot, Clock, MessageSquare, Pencil, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -116,9 +116,17 @@ export function TaskCard({ task, index, onEdit, onDelete }: TaskCardProps) {
               </div>
               
               <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <div className="flex items-center">
-                  <Clock className="h-3 w-3 mr-1" />
-                  {formatDate(task.updatedAt)}
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center">
+                    <Clock className="h-3 w-3 mr-1" />
+                    {formatDate(task.updatedAt)}
+                  </div>
+                  {task.comments && task.comments.length > 0 && (
+                    <div className="flex items-center">
+                      <MessageSquare className="h-3 w-3 mr-1" />
+                      {task.comments.length}
+                    </div>
+                  )}
                 </div>
                 {task.isActive && (
                   <span className="text-primary font-medium flex items-center gap-1">

@@ -17,7 +17,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Task, Priority } from '@/types/task'
+import { Task, Priority, Comment } from '@/types/task'
+import { MessageSquare, Send } from 'lucide-react'
 
 interface TaskDialogProps {
   open: boolean
@@ -32,6 +33,9 @@ export function TaskDialog({ open, onOpenChange, task, onSave }: TaskDialogProps
   const [priority, setPriority] = useState<Priority>('MEDIUM')
   const [tags, setTags] = useState('')
   const [storyPoints, setStoryPoints] = useState<string>('')
+  const [newComment, setNewComment] = useState('')
+  const [comments, setComments] = useState<Comment[]>([])
+  const [isSubmittingComment, setIsSubmittingComment] = useState(false)
 
   useEffect(() => {
     if (task) {
@@ -40,13 +44,16 @@ export function TaskDialog({ open, onOpenChange, task, onSave }: TaskDialogProps
       setPriority(task.priority)
       setTags(task.tags.join(', '))
       setStoryPoints(task.storyPoints?.toString() || '')
+      setComments(task.comments || [])
     } else {
       setTitle('')
       setDescription('')
       setPriority('MEDIUM')
       setTags('')
       setStoryPoints('')
+      setComments([])
     }
+    setNewComment('')
   }, [task, open])
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -62,9 +69,42 @@ export function TaskDialog({ open, onOpenChange, task, onSave }: TaskDialogProps
     onOpenChange(false)
   }
 
+  const handleAddComment = async () => {
+    if (!task || !newComment.trim()) return
+    
+    setIsSubmittingComment(true)
+    try {
+      const res = await fetch(`/api/tasks/${task.id}/comments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: newComment.trim() }),
+      })
+      
+      if (res.ok) {
+        const comment = await res.json()
+        setComments(prev => [...prev, comment])
+        setNewComment('')
+      }
+    } catch (error) {
+      console.error('Failed to add comment:', error)
+    } finally {
+      setIsSubmittingComment(false)
+    }
+  }
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+    })
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[500px] max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{task ? 'Edit Task' : 'New Task'}</DialogTitle>
         </DialogHeader>
@@ -131,8 +171,54 @@ export function TaskDialog({ open, onOpenChange, task, onSave }: TaskDialogProps
               placeholder="Comma-separated tags"
             />
           </div>
+
+          {/* Comments Section - only show for existing tasks */}
+          {task && (
+            <div className="border-t pt-4 mt-4">
+              <label className="text-sm font-medium flex items-center gap-2 mb-3">
+                <MessageSquare className="h-4 w-4" />
+                Comments ({comments.length})
+              </label>
+              
+              {comments.length > 0 && (
+                <div className="space-y-3 mb-4 max-h-48 overflow-y-auto">
+                  {comments.map((comment) => (
+                    <div key={comment.id} className="bg-muted/50 rounded-lg p-3">
+                      <p className="text-sm whitespace-pre-wrap">{comment.content}</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {formatDate(comment.createdAt)}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              <div className="flex gap-2">
+                <Input
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  placeholder="Add a comment..."
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault()
+                      handleAddComment()
+                    }
+                  }}
+                />
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="secondary"
+                  onClick={handleAddComment}
+                  disabled={!newComment.trim() || isSubmittingComment}
+                >
+                  <Send className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          )}
           
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>

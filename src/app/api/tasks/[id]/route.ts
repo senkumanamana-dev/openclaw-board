@@ -14,7 +14,10 @@ export async function GET(
 ) {
   try {
     const { id } = await params
-    const task = await prisma.task.findUnique({ where: { id } })
+    const task = await prisma.task.findUnique({ 
+      where: { id },
+      include: { comments: { orderBy: { createdAt: 'asc' } } },
+    })
     
     if (!task) {
       return NextResponse.json({ error: 'Task not found' }, { status: 404 })
@@ -62,6 +65,7 @@ export async function PATCH(
     const task = await prisma.task.update({
       where: { id },
       data: updateData,
+      include: { comments: { orderBy: { createdAt: 'asc' } } },
     })
     
     broadcast('task:updated', task)

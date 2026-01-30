@@ -12,6 +12,7 @@ export async function GET() {
   try {
     const tasks = await prisma.task.findMany({
       orderBy: [{ status: 'asc' }, { position: 'asc' }],
+      include: { comments: { orderBy: { createdAt: 'asc' } } },
     })
     return NextResponse.json(tasks)
   } catch (error) {

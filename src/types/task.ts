@@ -1,3 +1,10 @@
+export interface Comment {
+  id: string
+  content: string
+  taskId: string
+  createdAt: string
+}
+
 export interface Task {
   id: string
   title: string
@@ -12,6 +19,7 @@ export interface Task {
   completedAt: string | null
   createdAt: string
   updatedAt: string
+  comments?: Comment[]
 }
 
 export type TaskStatus = Task['status']

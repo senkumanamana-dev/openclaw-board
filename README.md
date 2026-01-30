@@ -1,129 +1,99 @@
 # OpenClaw Board
 
-A kanban-style task board for AI assistants running on [OpenClaw](https://github.com/openclaw/openclaw).
-
-![OpenClaw Board](https://img.shields.io/badge/AI-Task%20Tracker-emerald)
+A kanban-style task board for human-AI collaboration, built for [OpenClaw](https://github.com/openclaw/openclaw).
 
 ## Features
 
-- 🎯 **Drag-and-drop kanban** - Move tasks between To Do, In Progress, and Done
-- ⚡ **Real-time updates** - WebSocket-powered live synchronization
-- 🤖 **Active task indicator** - Visual pulse effect shows what the AI is currently working on
-- 🏷️ **Task metadata** - Priority levels, tags, descriptions, and timestamps
-- 🐳 **Dockerized** - One command to run the entire stack
+- 🎯 **Drag-and-drop kanban** — TODO → In Progress → Needs Review → Done
+- ⚡ **Real-time updates** — WebSocket-powered live sync
+- 🤖 **AI working indicator** — Visual pulse shows what the AI is actively working on
+- ✅ **Review workflow** — Tasks go through human approval before completion
+- 🔗 **Task dependencies** — Block tasks until dependencies are done
+- 📎 **Attachments** — Links, code snippets, and notes on tasks
+- 💬 **Comments & subtasks** — Break down work and discuss
+- 🏷️ **Human-readable IDs** — Jira-style keys (OCB-1, OCB-2, etc.)
 
 ## Quick Start
 
 ### Prerequisites
 
-- Docker & Docker Compose
+- Node.js 18+
+- PostgreSQL (local or Docker)
 
-### Run
+### Setup
 
 ```bash
-# Clone the repo
+# Clone
 git clone https://github.com/finchinslc/openclaw-board.git
 cd openclaw-board
 
-# Start the stack
-docker-compose up -d
-
-# Open in browser
-open http://localhost:3000
-```
-
-That's it! The board is now running with a PostgreSQL database.
-
-### Stop
-
-```bash
-docker-compose down
-```
-
-To also remove the database volume:
-
-```bash
-docker-compose down -v
-```
-
-## API
-
-The board exposes a REST API for programmatic access:
-
-### Tasks
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/tasks` | List all tasks |
-| POST | `/api/tasks` | Create a task |
-| GET | `/api/tasks/:id` | Get a task |
-| PATCH | `/api/tasks/:id` | Update a task |
-| DELETE | `/api/tasks/:id` | Delete a task |
-
-### Create a task
-
-```bash
-curl -X POST http://localhost:3000/api/tasks \
-  -H "Content-Type: application/json" \
-  -d '{
-    "title": "Build something cool",
-    "description": "A detailed description",
-    "priority": "HIGH",
-    "tags": ["feature", "urgent"]
-  }'
-```
-
-### Update task status
-
-```bash
-curl -X PATCH http://localhost:3000/api/tasks/<id> \
-  -H "Content-Type: application/json" \
-  -d '{"status": "IN_PROGRESS", "isActive": true}'
-```
-
-### Mark as currently working
-
-Set `isActive: true` on a task to show the visual "currently working" indicator:
-
-```bash
-curl -X PATCH http://localhost:3000/api/tasks/<id> \
-  -H "Content-Type: application/json" \
-  -d '{"isActive": true}'
-```
-
-## WebSocket Events
-
-Connect to `/ws` for real-time updates:
-
-- `task:created` - New task added
-- `task:updated` - Task modified
-- `task:deleted` - Task removed
-- `tasks:reordered` - Tasks reordered
-
-## Development
-
-```bash
-# Install dependencies
+# Install
 npm install
 
-# Start PostgreSQL (requires Docker)
-docker-compose up db -d
+# Configure database
+cp .env.example .env
+# Edit .env with your PostgreSQL connection string
 
-# Run migrations
-npx prisma migrate dev
+# Initialize database
+npx prisma db push
 
 # Start dev server
 npm run dev
 ```
 
+Open http://localhost:3000
+
+### Environment
+
+```bash
+# .env
+DATABASE_URL="postgresql://user@localhost:5432/openclaw?schema=public"
+```
+
+## API
+
+REST API for programmatic task management:
+
+### Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/tasks` | List all tasks |
+| `POST` | `/api/tasks` | Create a task |
+| `PATCH` | `/api/tasks/:id` | Update a task |
+| `DELETE` | `/api/tasks/:id` | Delete a task |
+
+### Examples
+
+**Create a task:**
+```bash
+curl -X POST http://localhost:3000/api/tasks \
+  -H "Content-Type: application/json" \
+  -d '{"title": "Build something cool", "priority": "HIGH", "tags": ["feature"]}'
+```
+
+**Start working (AI sets this):**
+```bash
+curl -X PATCH http://localhost:3000/api/tasks/<id> \
+  -H "Content-Type: application/json" \
+  -d '{"status": "IN_PROGRESS", "isActive": true, "actor": "agent"}'
+```
+
+**Submit for review:**
+```bash
+curl -X PATCH http://localhost:3000/api/tasks/<id> \
+  -H "Content-Type: application/json" \
+  -d '{"status": "NEEDS_REVIEW", "isActive": false, "actor": "agent"}'
+```
+
+### WebSocket
+
+Connect to `/ws` for real-time events:
+- `task:created`, `task:updated`, `task:deleted`, `tasks:reordered`
+
 ## Tech Stack
 
-- [Next.js](https://nextjs.org/) - React framework
-- [shadcn/ui](https://ui.shadcn.com/) - UI components
-- [Prisma](https://prisma.io/) - Database ORM
-- [PostgreSQL](https://postgresql.org/) - Database
-- [@hello-pangea/dnd](https://github.com/hello-pangea/dnd) - Drag and drop
-- [Docker](https://docker.com/) - Containerization
+Next.js · Prisma · PostgreSQL · shadcn/ui · @hello-pangea/dnd
 
 ## License
 

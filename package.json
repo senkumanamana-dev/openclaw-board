@@ -2,6 +2,10 @@
   "name": "openclaw-board",
   "version": "0.1.0",
   "private": true,
+  "overrides": {
+    "hono": "^4.11.7",
+    "lodash": "^4.17.22"
+  },
   "scripts": {
     "dev": "tsx server.ts",
     "dev:next": "next dev",

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { logActivity } from '@/lib/activity'
 
 // Helper to safely broadcast
 function broadcast(event: string, data: unknown) {
@@ -20,6 +21,7 @@ export async function GET(
         comments: { orderBy: { createdAt: 'asc' } },
         subtasks: { orderBy: { position: 'asc' } },
         attachments: { orderBy: { createdAt: 'desc' } },
+        activities: { orderBy: { createdAt: 'desc' }, take: 50 },
         blockedBy: { select: { id: true, title: true, status: true } },
         blocking: { select: { id: true, title: true, status: true } },
       },
@@ -99,10 +101,29 @@ export async function PATCH(
         comments: { orderBy: { createdAt: 'asc' } },
         subtasks: { orderBy: { position: 'asc' } },
         attachments: { orderBy: { createdAt: 'desc' } },
+        activities: { orderBy: { createdAt: 'desc' }, take: 20 },
         blockedBy: { select: { id: true, title: true, status: true } },
         blocking: { select: { id: true, title: true, status: true } },
       },
     })
+    
+    // Log activity for significant changes
+    const actor = body.actor || 'human'
+    if (body.status && body.status !== currentTask.status) {
+      await logActivity(id, 'status_change', actor, 'status', currentTask.status, body.status)
+    }
+    if (body.isActive !== undefined && body.isActive !== currentTask.isActive) {
+      await logActivity(id, body.isActive ? 'started_work' : 'stopped_work', actor)
+    }
+    if (body.blockedReason !== undefined && body.blockedReason !== currentTask.blockedReason) {
+      await logActivity(id, body.blockedReason ? 'blocked' : 'unblocked', actor, 'blockedReason', currentTask.blockedReason, body.blockedReason)
+    }
+    if (body.title && body.title !== currentTask.title) {
+      await logActivity(id, 'field_update', actor, 'title', currentTask.title, body.title)
+    }
+    if (body.priority && body.priority !== currentTask.priority) {
+      await logActivity(id, 'field_update', actor, 'priority', currentTask.priority, body.priority)
+    }
     
     broadcast('task:updated', task)
     

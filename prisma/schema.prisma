@@ -41,6 +41,7 @@ model Task {
   comments      Comment[]
   subtasks      Subtask[]
   attachments   Attachment[]
+  activities    Activity[]
   // Dependencies: tasks this task is blocked by
   blockedBy     Task[]     @relation("TaskDependencies")
   // Reverse: tasks that depend on this task
@@ -71,6 +72,18 @@ model Attachment {
   title     String?
   content   String   // URL for links, actual content for code/notes
   mimeType  String?  // For code highlighting or file types
+  taskId    String
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model Activity {
+  id        String   @id @default(cuid())
+  type      String   // 'created', 'status_change', 'field_update', 'comment_added', etc.
+  actor     String   // 'agent' or 'human'
+  field     String?  // Which field changed
+  oldValue  String?  // Previous value
+  newValue  String?  // New value
   taskId    String
   task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())

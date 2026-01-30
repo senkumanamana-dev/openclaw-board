@@ -14,6 +14,17 @@ export interface Subtask {
   createdAt: string
 }
 
+export interface Activity {
+  id: string
+  type: string
+  actor: 'agent' | 'human'
+  field: string | null
+  oldValue: string | null
+  newValue: string | null
+  taskId: string
+  createdAt: string
+}
+
 export interface Attachment {
   id: string
   type: 'link' | 'code' | 'note' | 'file'
@@ -45,6 +56,7 @@ export interface Task {
   comments?: Comment[]
   subtasks?: Subtask[]
   attachments?: Attachment[]
+  activities?: Activity[]
   blockedBy?: Task[]
   blocking?: Task[]
 }

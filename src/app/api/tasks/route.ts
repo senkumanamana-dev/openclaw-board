@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { logActivity } from '@/lib/activity'
 
 // Helper to safely broadcast
 function broadcast(event: string, data: unknown) {
@@ -51,6 +52,9 @@ export async function POST(request: Request) {
         position: (maxPosition._max.position ?? -1) + 1,
       },
     })
+
+    // Log creation
+    await logActivity(task.id, 'created', body.actor || 'human')
 
     broadcast('task:created', task)
     return NextResponse.json(task, { status: 201 })

@@ -18,8 +18,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Task, Priority, Comment, Subtask, Attachment } from '@/types/task'
-import { Code, ExternalLink, FileText, Link, MessageSquare, Paperclip, Send, ListChecks, Plus, X } from 'lucide-react'
+import { Task, Priority, Comment, Subtask, Attachment, Activity } from '@/types/task'
+import { Code, ExternalLink, FileText, History, Link, MessageSquare, Paperclip, Send, ListChecks, Plus, X } from 'lucide-react'
 
 interface TaskDialogProps {
   open: boolean
@@ -44,6 +44,7 @@ export function TaskDialog({ open, onOpenChange, task, onSave, allTasks = [] }: 
   const [blockedBy, setBlockedBy] = useState<string[]>([])
   const [blockedReason, setBlockedReason] = useState('')
   const [attachments, setAttachments] = useState<Attachment[]>([])
+  const [activities, setActivities] = useState<Activity[]>([])
   const [newAttachment, setNewAttachment] = useState({ type: 'link' as Attachment['type'], title: '', content: '' })
   const [isSubmittingAttachment, setIsSubmittingAttachment] = useState(false)
 
@@ -59,6 +60,7 @@ export function TaskDialog({ open, onOpenChange, task, onSave, allTasks = [] }: 
       setBlockedBy(task.blockedBy?.map(t => t.id) || [])
       setBlockedReason(task.blockedReason || '')
       setAttachments(task.attachments || [])
+      setActivities(task.activities || [])
     } else {
       setTitle('')
       setDescription('')
@@ -70,6 +72,7 @@ export function TaskDialog({ open, onOpenChange, task, onSave, allTasks = [] }: 
       setBlockedBy([])
       setBlockedReason('')
       setAttachments([])
+      setActivities([])
     }
     setNewComment('')
     setNewSubtask('')
@@ -564,6 +567,44 @@ export function TaskDialog({ open, onOpenChange, task, onSave, allTasks = [] }: 
                 >
                   <Send className="h-4 w-4" />
                 </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Activity Log - only show for existing tasks */}
+          {task && activities.length > 0 && (
+            <div className="border-t pt-4 mt-4">
+              <label className="text-sm font-medium flex items-center gap-2 mb-3">
+                <History className="h-4 w-4" />
+                Activity Log
+              </label>
+              
+              <div className="space-y-2 max-h-40 overflow-y-auto">
+                {activities.map((activity) => (
+                  <div key={activity.id} className="flex items-start gap-2 text-xs">
+                    <span className={`mt-0.5 px-1.5 py-0.5 rounded text-[10px] font-medium ${
+                      activity.actor === 'agent' ? 'bg-primary/20 text-primary' : 'bg-muted text-muted-foreground'
+                    }`}>
+                      {activity.actor === 'agent' ? '🤖' : '👤'}
+                    </span>
+                    <div className="flex-1">
+                      <span className="text-foreground">
+                        {activity.type === 'created' && 'Created task'}
+                        {activity.type === 'status_change' && `Changed status: ${activity.oldValue} → ${activity.newValue}`}
+                        {activity.type === 'started_work' && 'Started working'}
+                        {activity.type === 'stopped_work' && 'Stopped working'}
+                        {activity.type === 'blocked' && `Blocked: ${activity.newValue}`}
+                        {activity.type === 'unblocked' && 'Unblocked'}
+                        {activity.type === 'field_update' && `Updated ${activity.field}: ${activity.oldValue} → ${activity.newValue}`}
+                        {activity.type === 'comment_added' && 'Added a comment'}
+                        {activity.type === 'attachment_added' && 'Added an attachment'}
+                      </span>
+                      <span className="text-muted-foreground ml-2">
+                        {formatDate(activity.createdAt)}
+                      </span>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}

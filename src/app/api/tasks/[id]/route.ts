@@ -91,17 +91,6 @@ export async function PATCH(
       const now = new Date()
       
       // Close out the previous status entry
-      await prisma.statusHistory.updateMany({
-        where: { taskId: id, exitedAt: null },
-        data: { 
-          exitedAt: now,
-          duration: {
-            // Calculate duration - will be handled in a moment
-          }
-        }
-      })
-      
-      // Actually, let's do this properly with a query
       const previousEntry = await prisma.statusHistory.findFirst({
         where: { taskId: id, exitedAt: null },
         orderBy: { enteredAt: 'desc' }

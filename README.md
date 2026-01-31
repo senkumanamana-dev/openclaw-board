@@ -1,6 +1,10 @@
 # OpenClaw Board
 
+[![npm downloads](https://img.shields.io/npm/dm/openclaw-board-installer.svg)](https://www.npmjs.com/package/openclaw-board-installer)
+
 A kanban-style task board for human-AI collaboration, built for [OpenClaw](https://github.com/openclaw/openclaw).
+
+![OpenClaw Board](docs/images/board-overview.jpg)
 
 ## Features
 
@@ -13,14 +17,44 @@ A kanban-style task board for human-AI collaboration, built for [OpenClaw](https
 - 💬 **Comments & subtasks** — Break down work and discuss
 - 🏷️ **Human-readable IDs** — Jira-style keys (OCB-1, OCB-2, etc.)
 
+![Task Dialog](docs/images/task-dialog.jpg)
+
 ## Quick Start
 
-### Prerequisites
+### Option 1: TUI Installer (Recommended)
 
-- Node.js 18+
-- PostgreSQL (local or Docker)
+The easiest way to get started:
 
-### Setup
+```bash
+npx openclaw-board-installer
+```
+
+This interactive installer will:
+- Check prerequisites (Node.js, PostgreSQL)
+- Install PostgreSQL via Homebrew if needed (macOS)
+- Clone and configure the board
+- Set up auto-start on boot (optional)
+
+**Manage your installation:**
+```bash
+npx openclaw-board-installer status   # Check if running
+npx openclaw-board-installer start    # Start the board
+npx openclaw-board-installer stop     # Stop the board
+npx openclaw-board-installer logs     # View recent logs
+npx openclaw-board-installer update   # Pull latest & restart
+```
+
+### Option 2: Docker
+
+```bash
+git clone https://github.com/finchinslc/openclaw-board.git
+cd openclaw-board
+docker compose up -d
+```
+
+Open http://localhost:3000
+
+### Option 3: Manual Setup
 
 ```bash
 # Clone

@@ -55,8 +55,8 @@ export function KanbanColumn({ id, title, tasks, onEditTask, onDeleteTask, onApp
             ref={provided.innerRef}
             {...provided.droppableProps}
             className={cn(
-              'flex-1 p-2 sm:p-3 transition-colors',
-              snapshot.isDraggingOver && 'bg-muted',
+              'flex-1 p-2 sm:p-3 transition-all duration-200 ease-out min-h-[100px]',
+              snapshot.isDraggingOver && 'bg-primary/5 ring-2 ring-inset ring-primary/20',
               isCollapsed && 'hidden md:block'
             )}
           >

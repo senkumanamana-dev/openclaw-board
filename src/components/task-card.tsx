@@ -44,12 +44,24 @@ export function TaskCard({ task, index, onEdit, onDelete, onApprove, onReject }:
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
-          className="mb-2 sm:mb-2 cursor-grab active:cursor-grabbing touch-manipulation"
+          className={cn(
+            "mb-2 cursor-grab active:cursor-grabbing touch-manipulation",
+            "transition-transform duration-150 ease-out"
+          )}
+          style={{
+            ...provided.draggableProps.style,
+            // Smoother transform during drag
+            transform: snapshot.isDragging 
+              ? `${provided.draggableProps.style?.transform} scale(1.02)`
+              : provided.draggableProps.style?.transform,
+          }}
         >
           <Card
             className={cn(
-              'relative transition-all duration-200 hover:shadow-md p-2 sm:p-2',
-              snapshot.isDragging && 'rotate-2 shadow-xl',
+              'relative p-2 sm:p-2 border',
+              'transition-all duration-150 ease-out',
+              snapshot.isDragging && 'shadow-2xl ring-2 ring-primary/50 bg-card',
+              !snapshot.isDragging && 'hover:shadow-md',
               task.isActive && 'ring-2 ring-primary',
               isBlocked && 'opacity-60 border-dashed border-amber-500'
             )}

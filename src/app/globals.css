@@ -152,3 +152,22 @@
 .animate-glow-red {
   animation: glow-red 2s ease-in-out infinite;
 }
+
+/* Drag and drop placeholder styling */
+[data-rfd-placeholder-context-id] {
+  background: oklch(0.65 0.22 25 / 0.1) !important;
+  border: 2px dashed oklch(0.65 0.22 25 / 0.3) !important;
+  border-radius: 0.5rem !important;
+  transition: all 150ms ease-out !important;
+}
+
+/* Smooth dragging */
+[data-rfd-draggable-context-id] {
+  transition: transform 0ms !important;
+}
+
+/* Prevent text selection during drag */
+[data-rfd-drag-handle-context-id] {
+  -webkit-user-select: none;
+  user-select: none;
+}

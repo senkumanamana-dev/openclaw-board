@@ -304,13 +304,13 @@ export function KanbanBoard() {
   }
 
   return (
-    <div className="p-3 sm:p-6">
+    <div className="p-2 sm:p-4">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3 mb-3 sm:mb-4">
+        <div className="flex items-center gap-2">
           {/* Agent Icon */}
           <div className={cn(
-            "relative p-2 sm:p-2.5 rounded-xl transition-all shrink-0",
+            "relative p-1.5 sm:p-2 rounded-lg transition-all shrink-0",
             isWorking 
               ? "bg-primary text-primary-foreground shadow-lg shadow-primary/30" 
               : "bg-primary/10 text-primary"
@@ -318,47 +318,47 @@ export function KanbanBoard() {
             {isWorking && (
               <div className="absolute inset-0 rounded-xl bg-primary animate-ping opacity-30" />
             )}
-            <Bot className={cn("h-6 w-6 sm:h-7 sm:w-7 relative", isWorking && "animate-pulse")} />
+            <Bot className={cn("h-5 w-5 sm:h-6 sm:w-6 relative", isWorking && "animate-pulse")} />
           </div>
           <div className="min-w-0">
-            <h1 className="text-xl sm:text-2xl font-bold truncate">OpenClaw Board</h1>
-            <p className="text-xs sm:text-sm text-muted-foreground truncate">
+            <h1 className="text-lg sm:text-xl font-bold truncate">OpenClaw Board</h1>
+            <p className="text-xs text-muted-foreground truncate">
               {isWorking ? (
-                <span className="text-primary font-medium">Working on a task...</span>
+                <span className="text-primary font-medium">Working...</span>
               ) : (
-                'AI Assistant Task Tracker'
+                'Task Tracker'
               )}
             </p>
           </div>
         </div>
         
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           <div className={cn(
-            "flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-1.5 rounded-full",
+            "flex items-center gap-1 text-xs px-2 py-1 rounded-full",
             isConnected ? "bg-primary/10" : "bg-muted"
           )}>
             {isConnected ? (
               <>
-                <span className="relative flex h-2 w-2">
+                <span className="relative flex h-1.5 w-1.5">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-primary" />
                 </span>
-                <span className="text-primary font-medium">Live</span>
+                <span className="text-primary font-medium hidden sm:inline">Live</span>
               </>
             ) : (
               <>
-                <WifiOff className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-muted-foreground" />
-                <span className="text-muted-foreground">Offline</span>
+                <WifiOff className="h-3 w-3 text-muted-foreground" />
+                <span className="text-muted-foreground hidden sm:inline">Offline</span>
               </>
             )}
           </div>
-          <Button size="sm" onClick={handleNewTask}>
-            <Plus className="h-4 w-4 sm:mr-2" />
-            <span className="hidden sm:inline">New Task</span>
+          <Button size="sm" className="h-7 px-2 sm:px-3" onClick={handleNewTask}>
+            <Plus className="h-3.5 w-3.5 sm:mr-1.5" />
+            <span className="hidden sm:inline text-xs">New</span>
           </Button>
-          <Button variant="outline" size="sm" onClick={() => setIsArchiveOpen(true)}>
-            <Archive className="h-4 w-4 sm:mr-2" />
-            <span className="hidden sm:inline">Archive</span>
+          <Button variant="outline" size="sm" className="h-7 px-2 sm:px-3" onClick={() => setIsArchiveOpen(true)}>
+            <Archive className="h-3.5 w-3.5 sm:mr-1.5" />
+            <span className="hidden sm:inline text-xs">Archive</span>
           </Button>
           <ThemeToggle />
         </div>
@@ -368,19 +368,19 @@ export function KanbanBoard() {
       <MetricsPanel refreshTrigger={metricsRefresh} />
 
       {/* Search & Filter Bar */}
-      <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
-        <div className="relative w-full sm:flex-1 sm:min-w-[200px] sm:max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+      <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+        <div className="relative w-full sm:flex-1 sm:min-w-[180px] sm:max-w-xs">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
           <Input
             placeholder="Search tasks or OCB-##..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 h-9 sm:h-10"
+            className="pl-8 h-7 text-xs"
           />
         </div>
         
         <Select value={priorityFilter} onValueChange={(v) => setPriorityFilter(v as Priority | 'ALL')}>
-          <SelectTrigger className="w-[110px] sm:w-[130px] h-9 sm:h-10 text-xs sm:text-sm">
+          <SelectTrigger className="w-[90px] sm:w-[110px] h-7 text-xs">
             <SelectValue placeholder="Priority" />
           </SelectTrigger>
           <SelectContent>
@@ -393,7 +393,7 @@ export function KanbanBoard() {
         
         {allTags.length > 0 && (
           <Select value={tagFilter} onValueChange={setTagFilter}>
-            <SelectTrigger className="w-[100px] sm:w-[130px] h-9 sm:h-10 text-xs sm:text-sm">
+            <SelectTrigger className="w-[90px] sm:w-[110px] h-7 text-xs">
               <SelectValue placeholder="Tag" />
             </SelectTrigger>
             <SelectContent>
@@ -406,14 +406,14 @@ export function KanbanBoard() {
         )}
         
         {hasActiveFilters && (
-          <Button variant="ghost" size="sm" onClick={clearFilters}>
-            <X className="h-4 w-4 sm:mr-1" />
-            <span className="hidden sm:inline">Clear</span>
+          <Button variant="ghost" size="sm" className="h-7 px-2" onClick={clearFilters}>
+            <X className="h-3.5 w-3.5 sm:mr-1" />
+            <span className="hidden sm:inline text-xs">Clear</span>
           </Button>
         )}
         
         {hasActiveFilters && (
-          <span className="text-xs sm:text-sm text-muted-foreground hidden sm:inline">
+          <span className="text-xs text-muted-foreground hidden sm:inline">
             Showing {filteredTasks.length} of {tasks.length} tasks
           </span>
         )}
@@ -439,7 +439,7 @@ export function KanbanBoard() {
 
       {/* Kanban Board */}
       <DragDropContext onDragEnd={handleDragEnd}>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
           {COLUMNS.map(column => (
             <KanbanColumn
               key={column.id}

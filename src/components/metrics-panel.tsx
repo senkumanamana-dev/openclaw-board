@@ -95,10 +95,10 @@ export function MetricsPanel({ refreshTrigger }: MetricsPanelProps) {
   ]
 
   return (
-    <div className="flex flex-wrap items-center gap-x-3 sm:gap-x-5 gap-y-1 text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4 px-1">
+    <div className="flex flex-wrap items-center gap-x-2 sm:gap-x-4 gap-y-1 text-xs text-muted-foreground mb-2 sm:mb-3 px-1">
       {items.map((item) => (
-        <div key={item.label} className="flex items-center gap-1 sm:gap-1.5">
-          <item.icon className={cn('h-3 w-3 sm:h-3.5 sm:w-3.5', item.color)} />
+        <div key={item.label} className="flex items-center gap-1">
+          <item.icon className={cn('h-3 w-3', item.color)} />
           <span className="hidden sm:inline">{item.label}:</span>
           <span className="font-medium text-foreground">{item.value}</span>
         </div>

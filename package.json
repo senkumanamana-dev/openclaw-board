@@ -11,7 +11,7 @@
     "dev:next": "next dev",
     "build": "next build",
     "render-build": "npm install && npx prisma generate && next build",
-    "start": "NODE_ENV=production tsx server.ts",
+    "start": "ls -la .next && NODE_ENV=production tsx server.ts",
     "lint": "eslint"
   },
   "dependencies": {

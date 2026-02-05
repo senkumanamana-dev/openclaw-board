@@ -14,7 +14,7 @@
     "dev:next": "next dev",
     "build": "next build",
     "render-build": "rm -rf .next && npm install && npx prisma generate && npx next build",
-    "render-start": "npx tsx scripts/force-db.ts && npx prisma migrate deploy && tsx server.ts",
+    "render-start": "npx prisma db push --accept-data-loss && tsx server.ts",
     "start": "NODE_ENV=production tsx server.ts",
     "lint": "eslint"
   },

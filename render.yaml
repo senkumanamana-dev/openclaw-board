@@ -3,7 +3,7 @@ services:
     name: openclaw-board
     env: node
     plan: free
-    buildCommand: npm install && npx prisma generate
+    buildCommand: npm install && npx prisma generate && npm run build
     startCommand: npm run start
     envVars:
       - key: NODE_ENV

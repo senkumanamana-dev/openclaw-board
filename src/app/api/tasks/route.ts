@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
         blocking: { select: { id: true, taskNumber: true, title: true, status: true } },
       },
     })
-    return NextResponse.json(tasks, { headers: { 'X-Version': 'debug-final' } })
+    return NextResponse.json(tasks, { headers: { 'X-Version': 'debug-v4' } })
   } catch (error: any) {
     console.error('CRITICAL_TASK_FETCH_ERROR:', error)
     return NextResponse.json({ 
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
       message: error.message, 
       code: error.code,
       meta: error.meta,
-      v: 'debug-final' 
+      v: 'debug-v4' 
     }, { status: 500 })
   }
 }

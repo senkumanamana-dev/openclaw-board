@@ -26,10 +26,16 @@ export async function GET(request: NextRequest) {
         blocking: { select: { id: true, taskNumber: true, title: true, status: true } },
       },
     })
-    return NextResponse.json(tasks, { headers: { 'X-Version': 'debug-3' } })
+    return NextResponse.json(tasks, { headers: { 'X-Version': 'debug-final' } })
   } catch (error: any) {
-    console.error('Error fetching tasks:', error)
-    return NextResponse.json({ error: 'Failed to fetch tasks', message: error.message, stack: error.stack, v: 'debug-3' }, { status: 500 })
+    console.error('CRITICAL_TASK_FETCH_ERROR:', error)
+    return NextResponse.json({ 
+      error: 'Failed to fetch tasks', 
+      message: error.message, 
+      code: error.code,
+      meta: error.meta,
+      v: 'debug-final' 
+    }, { status: 500 })
   }
 }
 

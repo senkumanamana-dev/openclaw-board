@@ -33,40 +33,40 @@ export async function GET(request: NextRequest) {
     })
     
     const completedLast7Days = completedLast30Days.filter(
-      t => t.completedAt && t.completedAt >= sevenDaysAgo
+      (t: any) => t.completedAt && t.completedAt >= sevenDaysAgo
     )
     
     // Basic counts
     const totalTasks = allTasks.length
-    const completedTasks = allTasks.filter(t => t.status === 'DONE').length
-    const inProgressTasks = allTasks.filter(t => t.status === 'IN_PROGRESS').length
-    const todoTasks = allTasks.filter(t => t.status === 'TODO').length
-    const totalPoints = allTasks.reduce((sum, t) => sum + (t.storyPoints || 0), 0)
+    const completedTasks = allTasks.filter((t: any) => t.status === 'DONE').length
+    const inProgressTasks = allTasks.filter((t: any) => t.status === 'IN_PROGRESS').length
+    const todoTasks = allTasks.filter((t: any) => t.status === 'TODO').length
+    const totalPoints = allTasks.reduce((sum: number, t: any) => sum + (t.storyPoints || 0), 0)
     const completedPoints = allTasks
-      .filter(t => t.status === 'DONE')
-      .reduce((sum, t) => sum + (t.storyPoints || 0), 0)
+      .filter((t: any) => t.status === 'DONE')
+      .reduce((sum: number, t: any) => sum + (t.storyPoints || 0), 0)
     
     // Calculate cycle times (time from creation to completion)
     const cycleTimes = completedLast30Days
-      .filter(t => t.completedAt && t.createdAt)
-      .map(t => (t.completedAt!.getTime() - t.createdAt.getTime()) / 1000 / 3600) // hours
+      .filter((t: any) => t.completedAt && t.createdAt)
+      .map((t: any) => (t.completedAt!.getTime() - t.createdAt.getTime()) / 1000 / 3600) // hours
     
     const avgCycleTimeHours = cycleTimes.length > 0
-      ? Math.round((cycleTimes.reduce((a, b) => a + b, 0) / cycleTimes.length) * 10) / 10
+      ? Math.round((cycleTimes.reduce((a: number, b: number) => a + b, 0) / cycleTimes.length) * 10) / 10
       : null
     
     // Calculate lead times (time from IN_PROGRESS to completion)
     const leadTimes = completedLast30Days
-      .filter(t => t.completedAt && t.startedAt)
-      .map(t => (t.completedAt!.getTime() - t.startedAt!.getTime()) / 1000 / 3600) // hours
+      .filter((t: any) => t.completedAt && t.startedAt)
+      .map((t: any) => (t.completedAt!.getTime() - t.startedAt!.getTime()) / 1000 / 3600) // hours
     
     const avgLeadTimeHours = leadTimes.length > 0
-      ? Math.round((leadTimes.reduce((a, b) => a + b, 0) / leadTimes.length) * 10) / 10
+      ? Math.round((leadTimes.reduce((a: number, b: number) => a + b, 0) / leadTimes.length) * 10) / 10
       : null
     
     // Velocity (points completed)
-    const velocityLast7Days = completedLast7Days.reduce((sum, t) => sum + (t.storyPoints || 0), 0)
-    const velocityLast30Days = completedLast30Days.reduce((sum, t) => sum + (t.storyPoints || 0), 0)
+    const velocityLast7Days = completedLast7Days.reduce((sum: number, t: any) => sum + (t.storyPoints || 0), 0)
+    const velocityLast30Days = completedLast30Days.reduce((sum: number, t: any) => sum + (t.storyPoints || 0), 0)
     
     // Basic response for the metrics panel
     const basicMetrics = {
@@ -87,14 +87,14 @@ export async function GET(request: NextRequest) {
     }
     
     // Detailed response with per-task breakdown
-    const taskMetrics = completedLast30Days.slice(0, 20).map(task => {
+    const taskMetrics = completedLast30Days.slice(0, 20).map((task: any) => {
       const history = task.statusHistory
       
       let timeInTodo = 0
       let timeInProgress = 0
       let timeInReview = 0
       
-      for (const entry of history) {
+      for (const entry of history as any[]) {
         const duration = entry.duration || 0
         switch (entry.status) {
           case 'TODO':
@@ -129,7 +129,7 @@ export async function GET(request: NextRequest) {
     // Daily velocity breakdown
     const velocityByDay: Record<string, { tasks: number; points: number }> = {}
     
-    for (const task of completedLast30Days) {
+    for (const task of completedLast30Days as any[]) {
       if (!task.completedAt) continue
       const dayKey = task.completedAt.toISOString().split('T')[0]
       

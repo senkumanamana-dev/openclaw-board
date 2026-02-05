@@ -13,7 +13,8 @@
     "dev": "tsx server.ts",
     "dev:next": "next dev",
     "build": "next build",
-    "render-build": "rm -rf .next && npm install && npx prisma generate && npx prisma migrate deploy && npx next build",
+    "render-build": "rm -rf .next && npm install && npx prisma generate && npx next build",
+    "render-start": "npx prisma migrate deploy && npm run start",
     "start": "NODE_ENV=production tsx server.ts",
     "lint": "eslint"
   },

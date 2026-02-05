@@ -1,14 +1,12 @@
 import { Client } from 'pg';
 
 async function main() {
-  const client = new Client({
-    connectionString: process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false }
-  });
+    const client = new Client({
+      connectionString: process.env.DATABASE_URL,
+      ssl: { rejectUnauthorized: false }
+    });
 
-  try {
-    await client.connect();
-    console.log('Connected to database');
+    console.log('Attempting to connect to:', process.env.DATABASE_URL?.split('@')[1]);
 
     // Drop all tables to start clean
     console.log('Cleaning database...');

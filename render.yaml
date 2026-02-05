@@ -1,4 +1,3 @@
-# V2 sync trigger
 services:
   - type: web
     name: openclaw-board

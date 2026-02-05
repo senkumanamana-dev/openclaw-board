@@ -4,8 +4,8 @@ services:
     name: openclaw-board
     env: node
     plan: free
-    buildCommand: npm run render-build && npx prisma migrate deploy
-    startCommand: npm run start
+    buildCommand: npm run render-build
+    startCommand: npm run render-start
     envVars:
       - key: NODE_ENV
         value: production

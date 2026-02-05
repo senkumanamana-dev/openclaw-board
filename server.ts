@@ -4,8 +4,8 @@ import next from 'next'
 import { WebSocketServer, WebSocket } from 'ws'
 
 const dev = process.env.NODE_ENV !== 'production'
-const hostname = 'localhost'
-const port = parseInt(process.env.PORT || '3000', 10)
+const hostname = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost'
+const port = parseInt(process.env.PORT || '10000', 10)
 
 const app = next({ dev, hostname, port })
 const handle = app.getRequestHandler()

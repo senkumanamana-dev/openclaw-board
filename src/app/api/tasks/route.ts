@@ -26,10 +26,10 @@ export async function GET(request: NextRequest) {
         blocking: { select: { id: true, taskNumber: true, title: true, status: true } },
       },
     })
-    return NextResponse.json(tasks)
+    return NextResponse.json(tasks, { headers: { 'X-Version': 'debug-3' } })
   } catch (error: any) {
     console.error('Error fetching tasks:', error)
-    return NextResponse.json({ error: 'Failed to fetch tasks', message: error.message, stack: error.stack }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to fetch tasks', message: error.message, stack: error.stack, v: 'debug-3' }, { status: 500 })
   }
 }
 

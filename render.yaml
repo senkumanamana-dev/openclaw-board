@@ -1,3 +1,4 @@
+# Version: 2026-02-05-1200
 services:
   - type: web
     name: openclaw-board
